@@ -47,7 +47,7 @@ int g_Weights[] =
     12, 12,
     12, 12, 12, 12,
     12, 12,
-    12, 18
+    2, 3
 };
 
 char g_GameMode[24];
@@ -59,7 +59,7 @@ public Plugin myinfo =
     name = "L4D2StartingWeapon",
     author = "Lyric",
     description = "To avoid you starting empty-handed.",
-    version = "4.0.2",
+    version = "4.0.2.1",
     url = "https://github.com/scooderic"
 };
 
@@ -74,6 +74,8 @@ public void OnPluginStart()
 
     HookEvent("round_start", Event_RoundStart, EventHookMode_PostNoCopy);
     HookEvent("mission_lost", Event_MissionLost, EventHookMode_PostNoCopy);
+
+    HookEvent("survivor_rescued", Event_SurvivorRescued);
 }
 
 public void OnMapStart()
@@ -159,6 +161,21 @@ public void Event_MissionLost(Handle event, const char[] name, bool dontBroadcas
     {
         g_Remake = true;
     }
+}
+
+public Action Event_SurvivorRescued(Event event, const char[] name, bool dontBroadcast)
+{
+    int client = GetClientOfUserId(event.GetInt("victim"));
+
+    // PrintToChatAll("victim = %d, client = %d", event.GetInt("victim"), client);
+    // PrintToChatAll("IsClientConnected = %d, IsFakeClient = %d", IsClientConnected(client), IsFakeClient(client));
+    
+    if (client >= 1 && IsClientConnected(client))
+    {
+        CreateTimer(2.3, Timer_GiveWeapon, client, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+    }
+    
+    return Plugin_Continue;
 }
 
 int RandomWeaponIndex()
